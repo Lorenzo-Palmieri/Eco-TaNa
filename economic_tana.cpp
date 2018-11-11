@@ -32,8 +32,9 @@ int main(){
     array <int, genomes> B;
     array <double, genomes> A;
     array < vector < double>, genomes > J;
+    array <int, genomes> occ_vec_price={};
 
-    
+
     // Create table
     for (i=0; i<genomes; i++) {
         array<int,L> vec={} ;
@@ -79,8 +80,10 @@ int main(){
     ofstream fvar("variation.txt");
     ofstream fm("market.txt");
     ofstream fsim("similarity.txt");
-    ofstream fsum("summary.txt");
     ofstream fn("N.txt");
+    ofstream foccP("occ_vec_price.txt");
+    ofstream foccL("occ_vec_label.txt");
+
     
     
     // Dynamics //
@@ -95,16 +98,12 @@ int main(){
             species[i].calculate_fitness(Ptot, i, market_strategy, species, J);
             if(uniform() < species[i].Pgrow){
                 species[i].pt += 1 ;
-                //species[i].pt += species[i].pt/10000;
-                //species[i].pt += 1 + species[i].Pgrow*gaussian(); // random variable with sigma=Pgrow.
                 if(species[i].loosing_steps>0){species[i].loosing_steps -= 1;}
             }else{
                 species[i].pt -= 1 ;
-                //species[i].pt -= species[i].pt/10000;
-                //species[i].pt -= 1 + species[i].Pgrow*gaussian(); // random variable with sigma=Pgrow.
                 species[i].loosing_steps += 1;
                 if (species[i].pt<=0) {
-                    //close the file and remove the company.
+                    // Close the file and remove the company.
                     convert.str("");
                     filename.clear();
                     l = species[i].label;
@@ -112,7 +111,7 @@ int main(){
                     filename = convert.str();
                     filename+=".txt";
                     streams[l].close();
-                    // remove the company from species.
+                    // Remove the company from species.
                     species.erase(species.begin()+i);
                     i--;
                     N--;
@@ -132,7 +131,6 @@ int main(){
         
         // Create new companies.
         if(t % born_step == 0 ) {
-            //if(uniform() <= similarity){
                 N++;
                 Species_Class s;
                 s.strategy = choose_in_range(0,pow(2,L-1));
@@ -144,13 +142,10 @@ int main(){
                 species.push_back(s);
                 // next line is just for printing (Ptot has changed)
                 species[i].calculate_fitness(Ptot + s.pt, i, market_strategy, species, J);
-           // }
         }
         
         // PRINT COMMANDS.
         if (t>=0) {
-            fsum << lab << "\t" << t << endl;
-
                 strategies.clear();
                 for(j = 0 ; j < N ; j ++) {
                     convert.str("");
@@ -182,6 +177,19 @@ int main(){
                     Dtot = double((Ptot - Ptot_old))/Ptot_old;
                     fvar << Dtot << endl;
                 }
+            
+                // Create occupation vector.
+                occ_vec_price={};
+                for(j = 0 ; j < N ; j ++) {
+                l = species[j].label;
+                occ_vec_price[l] = occ_vec_price[l] + species[j].pt;
+                foccP << occ_vec_price[l] << "\t";
+                foccL << l << "\t";
+                }
+                foccP << endl;
+                foccL << endl;
+
+            
                 fPtot << Ptot << endl;
                 fm << Market << endl;
                 fsim << similarity << endl;
@@ -193,11 +201,12 @@ int main(){
             cout << t << "..."<<endl;
         }// End of print steps.
     }
+    foccP.close();
+    foccL.close();
     fPtot.close();
     fvar.close();
     fm.close();
     fsim.close();
-    fsum.close();
     fn.close();
     return 0 ;
 }

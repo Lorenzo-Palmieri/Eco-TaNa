@@ -52,16 +52,10 @@ int main(){
         }
     }
     
-    ofstream FJM("Jmatrix.txt");
-    // create J matrix AND PRINT FOR DUCCIO
     for(i = 0 ; i < genomes; i++ ) {
         for (j=0; j<genomes; j++) {
             J[i].push_back(compute_interactions(i, j, A, B, table));
-            // ----- Temporary printing part, unnecessary. -----
-            FJM << J[i][j] << "\t" ;
-            // -------------------------------------------------
         }
-        FJM << endl ;
     }
 
     

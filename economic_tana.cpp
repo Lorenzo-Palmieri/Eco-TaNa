@@ -24,14 +24,14 @@ int main(){
     array<int,L> market_strategy={} ;
     array< array<int,L> ,genomes> table;
     double dm, w;
-    int i,j,t,Ndead,l, rand, Market, k;
+    int i,j,t,l, rand, Market, k;
     double Z;
     string filename;
     stringstream convert;
     vector<ofstream> streams;
     array <int, genomes> B;
     array <double, genomes> A;
-    array < vector < double>, genomes > J;// In this way there is no problem with the initial stack, because it just stores an array of size genomes, that will be filled with pushback in a second moment.
+    array < vector < double>, genomes > J;
 
     
     // Create table
@@ -66,7 +66,7 @@ int main(){
         species[i].strategy = rand;
         species[i].loosing_steps = 0 ;
         species[i].binary_code = table[rand];
-        species[i].pt = 100 ; // I initialise all the prices
+        species[i].pt = 100 ; // Initialise all the prices
         species[i].label=i; // assign label to species
         lab=i;
     }
@@ -91,7 +91,6 @@ int main(){
             Ptot += species[j].pt ;
         }
         
-       // Ndead=0;
         for(i = 0 ; i < N ; i ++){ // cambiare prezzo di un double.
             species[i].calculate_fitness(Ptot, i, market_strategy, species, J);
             if(uniform() < species[i].Pgrow){
@@ -117,13 +116,10 @@ int main(){
                     species.erase(species.begin()+i);
                     i--;
                     N--;
-                    //Ndead++;
                 }
             }
         }
         
-        //N -= Ndead;
-
         // Mutations
         for(j = 0 ; j < N ; j ++){
             if(species[j].loosing_steps >  critical_step){species[j].mutations();}
@@ -153,11 +149,6 @@ int main(){
         
         // PRINT COMMANDS.
         if (t>=0) {
-            //if(t == simulation_length-1){
-            //fsum.open("summary.txt");
-            //fsum << (lab+1) << "\t" << t << endl;
-            //fsum.close();
-            //}
             fsum << lab << "\t" << t << endl;
 
                 strategies.clear();
@@ -172,7 +163,6 @@ int main(){
                     // if the file doesn't exist, it is created.
                     if(fileExists(filename)==0){
                         streams.emplace_back(ofstream(filename));
-                        //streams[l].open(filename); NO. Si apre automaticamente.
                     }
 
                     streams[l] << t << "\t" << species[j].pt << "\t" << species[j].strategy << "\t"<< species[j].dm << "\t"<<species[j].Ht << "\t" << species[j].T1<< "\t" << species[j].T2 << "\t" << species[j].T3 << endl;
